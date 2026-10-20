@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guide étape par étape pour bloquer une adresse IP sur un pare-feu Sophos XGS 2300.">
+    <title>Guide Sophos XGS 2300 - Blocage IP</title>
+
+    <style>
+        :root {
+            --primary: #005eb8;
+            --primary-dark: #003f7d;
+            --background: #f3f6fa;
+            --surface: #ffffff;
+            --text: #243247;
+            --muted: #627187;
+            --border: #dce4ee;
+            --danger: #c62828;
+            --success: #19764a;
+            --code-bg: #edf3fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--background);
+        }
+
+        header {
+            padding: 45px 20px;
+            color: white;
+            text-align: center;
+            background: linear-gradient(135deg, #003f7d, #0076c8);
+        }
+
+        header h1 {
+            margin: 0 0 12px;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+        }
+
+        header p {
+            max-width: 760px;
+            margin: auto;
+            color: #e7f2ff;
+        }
+
+        .container {
+            width: min(1050px, 92%);
+            margin: 30px auto;
+        }
+
+        .notice {
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            background: #e5f1ff;
+            border-left: 5px solid var(--primary);
+            border-radius: 8px;
+        }
+
+        nav {
+            padding: 22px;
+            margin-bottom: 25px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        nav h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+
+        nav ul {
+            padding-left: 22px;
+            margin-bottom: 0;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            padding: 28px;
+            margin-bottom: 25px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(25, 50, 80, 0.04);
+            scroll-margin-top: 20px;
+        }
+
+        section h2 {
+            padding-bottom: 12px;
+            margin-top: 0;
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            margin-top: 25px;
+            color: var(--primary-dark);
+        }
+
+        .step {
+            padding: 18px;
+            margin: 18px 0;
+            background: #f8fafd;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+        }
+
+        .step h3 {
+            margin-top: 0;
+        }
+
+        .field-list {
+            display: grid;
+            grid-template-columns: minmax(150px, 1fr) 2fr;
+            gap: 0;
+            margin: 18px 0;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .field-list div {
+            padding: 12px 15px;
+            overflow-wrap: anywhere;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field-list div:nth-child(odd) {
+            font-weight: bold;
+            background: #f0f5fb;
+        }
+
+        .field-list div:nth-last-child(-n+2) {
+            border-bottom: none;
+        }
+
+        code {
+            padding: 3px 7px;
+            color: #173c66;
+            background: var(--code-bg);
+            border-radius: 4px;
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        .warning {
+            padding: 16px;
+            margin: 20px 0;
+            color: #762323;
+            background: #fff0f0;
+            border-left: 5px solid var(--danger);
+            border-radius: 7px;
+        }
+
+        .success {
+            padding: 16px;
+            margin: 20px 0;
+            color: #155c3a;
+            background: #eaf8f0;
+            border-left: 5px solid var(--success);
+            border-radius: 7px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 16px;
+            color: white;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .button:hover {
+            background: var(--primary-dark);
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            margin: 18px 0;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            color: white;
+            background: var(--primary-dark);
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f5f8fc;
+        }
+
+        .checklist {
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .checklist li {
+            margin: 12px 0;
+        }
+
+        .checklist input {
+            width: 17px;
+            height: 17px;
+            margin-right: 9px;
+            vertical-align: middle;
+            accent-color: var(--primary);
+        }
+
+        .references a {
+            color: var(--primary);
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            padding: 28px 20px;
+            color: #dbe8f6;
+            text-align: center;
+            background: #17324f;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 32px 16px;
+            }
+
+            section {
+                padding: 19px;
+            }
+
+            .field-list {
+                grid-template-columns: 1fr;
+            }
+
+            .field-list div:nth-child(odd) {
+                padding-bottom: 5px;
+                border-bottom: none;
+            }
+
+            .field-list div:nth-child(even) {
+                padding-top: 5px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            header, footer {
+                color: black;
+                background: white;
+            }
+
+            section, nav {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .button {
+                display: none;
+            }
+
+            a {
+                color: black;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Sophos XGS 2300</h1>
+    <p>Guide pratique : bloquer une adresse IP, configurer une règle Firewall et vérifier son fonctionnement.</p>
+</header>
+
+<main class="container">
+
+    <div class="notice">
+        <strong>Objectif :</strong>
+        apprendre à créer un objet IP dans Sophos Firewall, ajouter une règle de blocage et contrôler les journaux.
+        Les noms exacts des menus peuvent varier selon la version de SFOS.
+    </div>
+
+    <nav aria-label="Sommaire">
+        <h2>Sommaire</h2>
+        <ul>
+            <li><a href="#etape1">1. Identifier ce que tu veux bloquer</a></li>
+            <li><a href="#etape2">2. Créer l'objet IP</a></li>
+            <li><a href="#etape3">3. Créer la règle de blocage</a></li>
+            <li><a href="#etape4">4. Vérifier que le blocage fonctionne</a></li>
+            <li><a href="#etape5">5. Bloquer une IP interne</a></li>
+            <li><a href="#documentation">Documentation officielle</a></li>
+        </ul>
+        <p>
+            <button class="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button>
+        </p>
+    </nav>
+
+    <section id="etape1">
+        <h2>1. Identifier ce que tu veux bloquer</h2>
+
+        <p>Il existe deux cas principaux :</p>
+
+        <div class="step">
+            <h3>Cas A — Bloquer une IP publique entrante</h3>
+            <p>
+                Une adresse IP publique provenant d'Internet tente d'accéder à ton réseau.
+                Tu souhaites empêcher cette adresse d'atteindre les ressources internes.
+            </p>
+            <p><strong>Exemple :</strong> <code>203.0.113.50</code></p>
+        </div>
+
+        <div class="step">
+            <h3>Cas B — Bloquer une IP interne</h3>
+            <p>
+                Un poste de ton réseau local ne doit plus accéder à Internet ou communiquer
+                avec certaines autres zones réseau.
+            </p>
+            <p><strong>Exemple :</strong> <code>192.168.1.50</code></p>
+        </div>
+
+        <div class="warning">
+            <strong>Important :</strong> la configuration de la règle dépend du sens du trafic.
+            Le blocage d'une IP publique entrante et celui d'un poste interne ne nécessitent
+            pas les mêmes zones source et destination.
+        </div>
+
+        <p>
+            Les étapes 2 et 3 présentent d'abord la méthode pour bloquer une IP publique
+            entrante depuis Internet vers le LAN.
+        </p>
+    </section>
+
+    <section id="etape2">
+        <h2>2. Créer l'objet IP</h2>
+
+        <p>
+            Avant de créer la règle Firewall, ajoute l'adresse IP dans les objets réseau
+            de Sophos. Cet objet pourra ensuite être sélectionné dans la règle.
+        </p>
+
+        <div class="step">
+            <h3>Étape 1 — Accéder au menu</h3>
+            <ol>
+                <li>Connecte-toi à l'interface Web d'administration de Sophos.</li>
+                <li>Ouvre <strong>Hosts and services</strong>.</li>
+                <li>Selon la version de SFOS, le menu peut être présenté sous
+                    <strong>Network &gt; IP host</strong> ou un emplacement équivalent.</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>Étape 2 — Ajouter l'adresse</h3>
+            <ol>
+                <li>Clique sur <strong>Add</strong> ou <strong>Add IP host</strong>.</li>
+                <li>Renseigne les paramètres suivants.</li>
+            </ol>
+
+            <div class="field-list">
+                <div>Name</div>
+                <div><code>IP_BLOQUEE</code></div>
+
+                <div>IP version</div>
+                <div>IPv4</div>
+
+                <div>Type</div>
+                <div>IP / Host, selon l'interface</div>
+
+                <div>IP address</div>
+                <div><code>203.0.113.50</code> — exemple à remplacer par l'adresse réelle</div>
+            </div>
+
+            <p>
+                Pour une seule adresse IPv4, utilise l'adresse seule, sans masque de sous-réseau.
+                Vérifie le type de l'objet avant de l'enregistrer.
+            </p>
+        </div>
+
+        <div class="step">
+            <h3>Étape 3 — Enregistrer</h3>
+            <ol>
+                <li>Clique sur <strong>Save</strong>.</li>
+                <li>Vérifie que l'objet <code>IP_BLOQUEE</code> apparaît dans la liste.</li>
+                <li>Tu peux maintenant le sélectionner dans les règles Firewall.</li>
+            </ol>
+        </div>
+    </section>
+
+    <section id="etape3">
+        <h2>3. Créer la règle de blocage</h2>
+
+        <p>
+            Ouvre <strong>Rules and policies &gt; Firewall rules</strong>.
+            Clique sur <strong>Add firewall rule &gt; New firewall rule</strong>,
+            ou sur l'option équivalente de ta version.
+        </p>
+
+        <h3>Configuration de la règle</h3>
+
+        <p>
+            Exemple : bloquer l'adresse publique <code>203.0.113.50</code> qui tente
+            d'accéder au réseau LAN.
+        </p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Valeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Rule name</td>
+                        <td><code>BLOCK_IP_PUBLIQUE</code></td>
+                    </tr>
+                    <tr>
+                        <td>Rule position</td>
+                        <td>Top — placer en haut si nécessaire</td>
+                    </tr>
+                    <tr>
+                        <td>Action</td>
+                        <td><strong>Drop</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Source zones</td>
+                        <td>WAN</td>
+                    </tr>
+                    <tr>
+                        <td>Source networks and devices</td>
+                        <td><code>IP_BLOQUEE</code></td>
+                    </tr>
+                    <tr>
+                        <td>Destination zones</td>
+                        <td>LAN</td>
+                    </tr>
+                    <tr>
+                        <td>Destination networks</td>
+                        <td>Any</td>
+                    </tr>
+                    <tr>
+                        <td>Services</td>
+                        <td>Any</td>
+                    </tr>
+                    <tr>
+                        <td>Log firewall traffic</td>
+                        <td>Activé</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Enregistrer et activer la règle</h3>
+
+        <ol>
+            <li>Vérifie tous les champs de la règle.</li>
+            <li>Clique sur <strong>Save</strong>.</li>
+            <li>Vérifie que la règle est activée.</li>
+            <li>Place-la au-dessus des règles susceptibles d'autoriser le même trafic.</li>
+            <li>Contrôle les journaux après avoir testé le blocage.</li>
+        </ol>
+
+        <div class="notice">
+            <strong>À retenir :</strong> Sophos évalue les règles Firewall selon leur ordre
+            et les critères de correspondance. Une règle de blocage placée au-dessus des
+            règles d'autorisation pertinentes évite que le trafic visé soit accepté par
+            une règle plus prioritaire.
+        </div>
+
+        <div class="warning">
+            <strong>Attention à l'adresse d'exemple :</strong>
+            <code>203.0.113.50</code> appartient à une plage réservée à la documentation.
+            Ce n'est pas une véritable adresse publique à utiliser pour un test réel.
+            Remplace-la par l'adresse que tu veux bloquer.
+        </div>
+
+        <p>
+            <strong>Attention également :</strong> une règle WAN vers LAN ne couvre pas
+            nécessairement tous les scénarios, notamment les accès à des services publiés,
+            les règles DNAT ou les autres chemins réseau. Adapte les zones à la topologie
+            réelle de ton installation.
+        </p>
+    </section>
+
+    <section id="etape4">
+        <h2>4. Vérifier que le blocage fonctionne</h2>
+
+        <p>
+            Après avoir enregistré la règle, contrôle les journaux et vérifie que le trafic
+            correspondant est effectivement bloqué.
+        </p>
+
+        <div class="step">
+            <h3>Étape 1 — Ouvrir les journaux</h3>
+            <p>
+                Ouvre <strong>Log viewer</strong> ou la section des journaux Firewall
+                dans l'interface d'administration Sophos.
+            </p>
+        </div>
+
+        <div class="step">
+            <h3>Étape 2 — Rechercher l'adresse IP</h3>
+            <p>
+                Filtre les événements avec l'adresse IP concernée.
+                Selon le type de trafic, vérifie l'adresse source, l'adresse destination
+                et la règle indiquée dans le journal.
+            </p>
+        </div>
+
+        <div class="step">
+            <h3>Étape 3 — Confirmer le résultat</h3>
+            <ul class="checklist">
+                <li><label><input type="checkbox"> La règle est activée.</label></li>
+                <li><label><input type="checkbox"> L'adresse IP correspond à l'objet créé.</label></li>
+                <li><label><input type="checkbox"> Les zones source et destination sont correctes.</label></li>
+                <li><label><input type="checkbox"> La règle apparaît dans les événements pertinents.</label></li>
+                <li><label><input type="checkbox"> Le trafic visé est indiqué comme bloqué.</label></li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>Si le trafic passe encore :</strong>
+            vérifie les zones, le sens du trafic, l'ordre des règles et les règles NAT
+            éventuelles. Vérifie également si une session existante est toujours active.
+            Le comportement des connexions déjà établies peut différer de celui des
+            nouvelles connexions.
+        </div>
+
+        <div class="success">
+            <strong>Résultat attendu :</strong>
+            les nouvelles connexions correspondant aux critères de la règle de blocage
+            sont rejetées et les événements correspondants peuvent être examinés dans
+            les journaux.
+        </div>
+    </section>
+
+    <section id="etape5">
+        <h2>5. Bloquer une IP interne</h2>
+
+        <p>
+            Pour empêcher un poste du LAN d'accéder à Internet, crée d'abord un objet
+            IP correspondant à l'adresse interne du poste, par exemple
+            <code>192.168.1.50</code>. Ensuite, configure une règle spécifique.
+        </p>
+
+        <h3>Configuration de la règle LAN vers WAN</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Valeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Rule name</td>
+                        <td><code>BLOCK_IP_INTERNE</code></td>
+                    </tr>
+                    <tr>
+                        <td>Source zone</td>
+                        <td>LAN</td>
+                    </tr>
+                    <tr>
+                        <td>Source networks and devices</td>
+                        <td><code>IP_BLOQUEE</code></td>
+                    </tr>
+                    <tr>
+                        <td>Destination zone</td>
+                        <td>WAN</td>
+                    </tr>
+                    <tr>
+                        <td>Destination networks</td>
+                        <td>Any</td>
+                    </tr>
+                    <tr>
+                        <td>Services</td>
+                        <td>Any</td>
+                    </tr>
+                    <tr>
+                        <td>Action</td>
+                        <td><strong>Drop</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Rule position</td>
+                        <td>Top — avant les autorisations pertinentes</td>
+                    </tr>
+                    <tr>
+                        <td>Log firewall traffic</td>
+                        <td>Activé</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Procédure</h3>
+
+        <ol>
+            <li>Crée l'objet IP du poste interne.</li>
+            <li>Ouvre <strong>Rules and policies &gt; Firewall rules</strong>.</li>
+            <li>Ajoute une nouvelle règle Firewall.</li>
+            <li>Choisis <strong>LAN</strong> comme zone source et <strong>WAN</strong> comme zone destination.</li>
+            <li>Sélectionne l'objet IP du poste comme source.</li>
+            <li>Choisis <strong>Drop</strong> comme action.</li>
+            <li>Active les journaux et enregistre la règle.</li>
+            <li>Place la règle au-dessus des autorisations qui pourraient correspondre au trafic.</li>
+            <li>Teste l'accès à Internet depuis le poste et vérifie les journaux.</li>
+        </ol>
+
+        <div class="notice">
+            <strong>Limite :</strong> cette règle vise le trafic du poste interne vers Internet.
+            Pour bloquer aussi les communications entre VLAN, LAN et autres zones internes,
+            ajoute les règles adaptées à ces chemins réseau. Vérifie également les accès
+            IPv6 si ton réseau les utilise.
+        </div>
+    </section>
+
+    <section id="documentation">
+        <h2>Documentation officielle</h2>
+
+        <p>Pour vérifier les options exactes de ton interface SFOS, consulte la documentation Sophos :</p>
+
+        <ul class="references">
+            <li>
+                <a href="https://docs.sophos.com/nsg/sophos-firewall/20.0/Help/en-us/webhelp/onlinehelp/index.html?contextId=rules-policies-firewall-add-rule"
+                   target="_blank" rel="noopener noreferrer">
+                    Créer une règle Firewall Sophos
+                </a>
+            </li>
+            <li>
+                <a href="https://docs.sophos.com/nsg/sophos-firewall/22.0/Help/en-us/webhelp/onlinehelp/index.html?contextId=hosts-services-IP-host"
+                   target="_blank" rel="noopener noreferrer">
+                    Gérer les objets IP Host
+                </a>
+            </li>
+        </ul>
+
+        <div class="warning">
+            <strong>Avant toute modification en production :</strong>
+            vérifie que tu utilises la bonne adresse IP, que tu ne bloques pas une adresse
+            d'administration essentielle et que la nouvelle règle ne perturbera pas les
+            services autorisés. Si possible, effectue les tests pendant une fenêtre de
+            maintenance et conserve un accès d'administration de secours.
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>Sophos XGS 2300 — Guide de configuration Firewall</p>
+    <p>Document pédagogique. Adapte les paramètres à ta version de SFOS et à ton réseau.</p>
+</footer>
+
+</body>
+</html>
